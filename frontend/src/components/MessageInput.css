@@ -1,0 +1,75 @@
+.message-input-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel-header);
+  border-top: 1px solid var(--border-light);
+}
+
+.message-input-file-hidden {
+  display: none;
+}
+
+.message-input-attach {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.message-input-attach:hover:not(:disabled) {
+  background: var(--chat-hover);
+  color: var(--text-primary);
+}
+
+.message-input-attach:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.message-input-field {
+  flex: 1;
+  min-height: 42px;
+  max-height: 120px;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  resize: none;
+}
+
+.message-input-field::placeholder {
+  color: var(--text-secondary);
+}
+
+.message-input-field:focus {
+  outline: none;
+}
+
+.message-input-send {
+  padding: 0.6rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--green-accent);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.message-input-send:hover:not(:disabled) {
+  background: #008f72;
+}
+
+.message-input-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

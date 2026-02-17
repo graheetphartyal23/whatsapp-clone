@@ -1,0 +1,145 @@
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--chat-window-bg);
+}
+
+.chat-window-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel-header);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.chat-window-avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--input-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-weight: 600;
+}
+
+.chat-window-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chat-window-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.chat-window-name {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.chat-window-status {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.chat-window-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.load-more-btn {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background: var(--chat-hover);
+  color: var(--text-primary);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.messages-loading {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 2rem;
+}
+
+.message-bubble {
+  max-width: 65%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.message-bubble.out {
+  align-self: flex-end;
+  background: var(--message-out);
+}
+
+.message-bubble.in {
+  align-self: flex-start;
+  background: var(--message-in);
+}
+
+.message-text {
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.message-meta {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  align-self: flex-end;
+}
+
+.message-media img {
+  max-width: 280px;
+  max-height: 280px;
+  border-radius: 6px;
+  display: block;
+}
+
+.message-media {
+  display: block;
+}
+
+.message-file {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.message-status {
+  margin-left: 0.35rem;
+  opacity: 0.8;
+  font-size: 0.75rem;
+}

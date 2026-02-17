@@ -1,0 +1,48 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --sidebar-bg: #111b21;
+  --chat-list-bg: #111b21;
+  --chat-hover: #2a3942;
+  --panel-header: #202c33;
+  --chat-window-bg: #0b141a;
+  --message-out: #005c4b;
+  --message-in: #202c33;
+  --input-bg: #2a3942;
+  --text-primary: #e9edef;
+  --text-secondary: #8696a0;
+  --green-accent: #00a884;
+  --border-light: #2a3942;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--chat-window-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+a {
+  color: var(--green-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
