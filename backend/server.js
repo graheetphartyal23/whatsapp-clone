@@ -34,6 +34,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'WhatsApp Clone API is running',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      chats: '/api/chats',
+      messages: '/api/messages',
+    },
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
@@ -44,7 +57,7 @@ app.use((err, req, res, next) => {
 
 setupSocketHandlers(io);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 }).on('error', (err) => {
