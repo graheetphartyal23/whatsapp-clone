@@ -6,22 +6,51 @@ import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import MessageInput from '../components/MessageInput';
 import './Chat.css';
+import IncomingCallModal from '../components/IncomingCallModal';
+import CallScreen from '../components/CallScreen';  // ← ADD THIS LINE
 
-const API = import.meta.env.VITE_API_URL || '';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function getAuthHeader() {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+
+function getChatDisplayName(chat) {
+  if (chat.type === 'group') {
+    return chat.name || 'Group';
+  }
+  return chat.otherUser?.name || chat.otherUser?.email || 'Unknown';
+}
+
+function getChatAvatar(chat) {
+  if (chat.type === 'group') {
+    return (chat.name || 'Group').charAt(0).toUpperCase();
+  }
+  return chat.otherUser?.name?.charAt(0)?.toUpperCase() || 
+         chat.otherUser?.email?.charAt(0)?.toUpperCase() || 
+         '?';
+}
+
+function isChatDirect(chat) {
+  return chat.type === 'direct' || chat.otherUser != null;
+}
+
+
 function setUserOnline(list, userId, isOnline) {
   return list.map((u) => (u.id === userId ? { ...u, isOnline } : u));
 }
 
 function setChatOtherOnline(chats, userId, isOnline) {
-  return chats.map((c) =>
-    c.otherUser?.id === userId ? { ...c, otherUser: { ...c.otherUser, isOnline } } : c
-  );
+  return chats.map((c) => {
+    if (c.type === 'group') {
+      return c;
+    }
+    return c.otherUser?.id === userId 
+      ? { ...c, otherUser: { ...c.otherUser, isOnline } } 
+      : c;
+  });
 }
 
 export default function Chat() {
@@ -112,16 +141,22 @@ export default function Chat() {
     const onOnline = ({ userId }) => {
       setUsers((prev) => setUserOnline(prev, userId, true));
       setChats((prev) => setChatOtherOnline(prev, userId, true));
-      setSelectedChat((prev) =>
-        prev?.otherUser?.id === userId ? { ...prev, otherUser: { ...prev.otherUser, isOnline: true } } : prev
-      );
+      setSelectedChat((prev) => {
+        if (!prev || prev.type === 'group') return prev;
+        return prev.otherUser?.id === userId 
+          ? { ...prev, otherUser: { ...prev.otherUser, isOnline: true } } 
+          : prev;
+      });
     };
     const onOffline = ({ userId }) => {
       setUsers((prev) => setUserOnline(prev, userId, false));
       setChats((prev) => setChatOtherOnline(prev, userId, false));
-      setSelectedChat((prev) =>
-        prev?.otherUser?.id === userId ? { ...prev, otherUser: { ...prev.otherUser, isOnline: false } } : prev
-      );
+      setSelectedChat((prev) => {
+        if (!prev || prev.type === 'group') return prev;
+        return prev.otherUser?.id === userId 
+          ? { ...prev, otherUser: { ...prev.otherUser, isOnline: false } } 
+          : prev;
+      });
     };
     socket.on('user_online', onOnline);
     socket.on('user_offline', onOffline);
@@ -170,6 +205,8 @@ export default function Chat() {
 
   return (
     <div className="chat-layout">
+      <IncomingCallModal users={users} />
+      <CallScreen users={users} />  {/* ← ADD THIS LINE */}
       <Sidebar
         user={user}
         chats={chats}
@@ -184,7 +221,10 @@ export default function Chat() {
         {selectedChat ? (
           <>
             <ChatWindow
+              chatType={selectedChat.type || (selectedChat.otherUser ? 'direct' : 'group')}
               otherUser={selectedChat.otherUser}
+              chatName={selectedChat.name}
+              members={selectedChat.members}
               messages={messages}
               loading={loadingMessages}
               currentUserId={user?.id}

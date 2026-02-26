@@ -1,4 +1,5 @@
-import { prisma } from '../lib/prisma.js';
+import crypto from 'crypto';
+import { db } from '../lib/db.js';
 
 export const getChatMessages = async (req, res) => {
   try {
@@ -7,23 +8,49 @@ export const getChatMessages = async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit, 10) || 50, 100);
     const cursor = req.query.cursor || undefined;
 
-    const chat = await prisma.chat.findFirst({
-      where: {
-        id: chatId,
-        OR: [{ user1Id: userId }, { user2Id: userId }],
-      },
-    });
-    if (!chat) {
+    const chatResult = await db.query(
+      `SELECT id FROM chats c
+       WHERE c.id = $1
+         AND (c.user1_id = $2 OR c.user2_id = $2 OR EXISTS (
+           SELECT 1 FROM chat_members cm WHERE cm.chat_id = c.id AND cm.user_id = $2
+         ))`,
+      [chatId, userId]
+    );
+    if (chatResult.rows.length === 0) {
       return res.status(404).json({ message: 'Chat not found.' });
     }
 
-    const messages = await prisma.message.findMany({
-      where: { chatId },
-      take: limit + 1,
-      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-      orderBy: { createdAt: 'desc' },
-      include: { sender: { select: { id: true, name: true, email: true } } },
-    });
+    let query = `
+      SELECT m.id, m.chat_id as "chatId", m.sender_id as "senderId", m.content, m.status, m.created_at as "createdAt",
+             u.id as sender_id, u.name as sender_name, u.email as sender_email
+      FROM messages m
+      JOIN users u ON m.sender_id = u.id
+      WHERE m.chat_id = $1
+    `;
+    const params = [chatId];
+
+    if (cursor) {
+      query += ` AND m.id < $2 ORDER BY m.created_at DESC LIMIT $3`;
+      params.push(cursor, limit + 1);
+    } else {
+      query += ` ORDER BY m.created_at DESC LIMIT $2`;
+      params.push(limit + 1);
+    }
+
+    const result = await db.query(query, params);
+    const messages = result.rows.map((row) => ({
+      id: row.id,
+      chatId: row.chatId,
+      senderId: row.senderId,
+      content: row.content,
+      status: row.status,
+      createdAt: row.createdAt,
+      sender: {
+        id: row.sender_id,
+        name: row.sender_name,
+        email: row.sender_email,
+      },
+    }));
 
     const hasMore = messages.length > limit;
     const list = hasMore ? messages.slice(0, limit) : messages;
@@ -47,24 +74,60 @@ export const createMessage = async (req, res) => {
       return res.status(400).json({ message: 'chatId and content are required.' });
     }
 
-    const chat = await prisma.chat.findFirst({
-      where: {
-        id: chatId,
-        OR: [{ user1Id: userId }, { user2Id: userId }],
-      },
-    });
-    if (!chat) {
+    const chatResult = await db.query(
+      `SELECT c.type, c.user1_id as "user1Id", c.user2_id as "user2Id"
+       FROM chats c
+       WHERE c.id = $1
+         AND (c.user1_id = $2 OR c.user2_id = $2 OR EXISTS (
+           SELECT 1 FROM chat_members cm WHERE cm.chat_id = c.id AND cm.user_id = $2
+         ))`,
+      [chatId, userId]
+    );
+    if (chatResult.rows.length === 0) {
       return res.status(404).json({ message: 'Chat not found.' });
     }
 
-    const message = await prisma.message.create({
-      data: { chatId, senderId: userId, content, status: 'sent' },
-      include: { sender: { select: { id: true, name: true, email: true } } },
-    });
+    const chat = chatResult.rows[0];
+    const messageId = crypto.randomUUID();
+    const result = await db.query(
+      'INSERT INTO messages (id, chat_id, sender_id, content, status, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING created_at',
+      [messageId, chatId, userId, content, 'sent']
+    );
+    const createdAt = result.rows[0].created_at;
 
-    const recipientId = chat.user1Id === userId ? chat.user2Id : chat.user1Id;
+    const senderResult = await db.query(
+      'SELECT id, name, email FROM users WHERE id = $1',
+      [userId]
+    );
+    const sender = senderResult.rows[0];
+
+    const message = {
+      id: messageId,
+      chatId,
+      senderId: userId,
+      content,
+      status: 'sent',
+      createdAt: createdAt,
+      sender: {
+        id: sender.id,
+        name: sender.name,
+        email: sender.email,
+      },
+    };
+
     if (req.io) {
-      req.io.to(recipientId).emit('receive_message', message);
+      if (chat.type === 'group') {
+        const membersResult = await db.query(
+          'SELECT user_id FROM chat_members WHERE chat_id = $1 AND user_id != $2',
+          [chatId, userId]
+        );
+        for (const row of membersResult.rows) {
+          req.io.to(row.user_id).emit('receive_message', message);
+        }
+      } else {
+        const recipientId = chat.user1Id === userId ? chat.user2Id : chat.user1Id;
+        req.io.to(recipientId).emit('receive_message', message);
+      }
     }
     res.status(201).json(message);
   } catch (error) {
@@ -81,21 +144,33 @@ export const updateMessageStatus = async (req, res) => {
       return res.status(400).json({ message: 'status must be delivered or read.' });
     }
 
-    const message = await prisma.message.findFirst({
-      where: { id: messageId },
-      include: { chat: true },
-    });
-    if (!message) return res.status(404).json({ message: 'Message not found.' });
-    if (message.chat.user1Id !== userId && message.chat.user2Id !== userId) {
+    const messageResult = await db.query(
+      `SELECT m.id, m.sender_id as "senderId", c.user1_id as "user1Id", c.user2_id as "user2Id",
+              (EXISTS (SELECT 1 FROM chat_members cm WHERE cm.chat_id = c.id AND cm.user_id = $2)) AS "isGroupMember"
+       FROM messages m
+       JOIN chats c ON m.chat_id = c.id
+       WHERE m.id = $1`,
+      [messageId, userId]
+    );
+    if (messageResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Message not found.' });
+    }
+
+    const message = messageResult.rows[0];
+    const isInChat =
+      message.user1Id === userId ||
+      message.user2Id === userId ||
+      message.isGroupMember === true;
+    if (!isInChat) {
       return res.status(403).json({ message: 'Forbidden.' });
     }
-    if (message.senderId === userId) return res.status(400).json({ message: 'Sender cannot mark own message.' });
+    if (message.senderId === userId) {
+      return res.status(400).json({ message: 'Sender cannot mark own message.' });
+    }
 
-    const updated = await prisma.message.update({
-      where: { id: messageId },
-      data: { status },
-    });
-    res.json(updated);
+    await db.query('UPDATE messages SET status = $1 WHERE id = $2', [status, messageId]);
+    const updatedResult = await db.query('SELECT * FROM messages WHERE id = $1', [messageId]);
+    res.json(updatedResult.rows[0]);
   } catch (error) {
     res.status(500).json({ message: error.message || 'Failed to update status.' });
   }

@@ -1,4 +1,5 @@
 {
+    "_comment": "⚠️ WARNING: This backend uses Socket.io which requires persistent WebSocket connections. Vercel serverless functions CANNOT support Socket.io. Use Railway or Render instead. See docs/DEPLOYMENT.md",
     "version": 2,
     "builds": [
      {

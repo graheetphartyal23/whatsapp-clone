@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-const API = import.meta.env.VITE_API_URL || '';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
       .get(`${API}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setUser(res.data))
+      .then((res) => setUser({ ...res.data, token }))
       .catch(() => localStorage.removeItem('token'))
       .finally(() => setLoading(false));
   }, []);

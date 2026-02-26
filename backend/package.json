@@ -7,10 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "dev:simple": "node server.js",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev"
+    "dev:simple": "node server.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -18,8 +15,7 @@
     "dotenv": "^16.6.1",
     "express": "^4.22.1",
     "jsonwebtoken": "^9.0.3",
-    "prisma": "^5.22.0",
-    "@prisma/client": "^5.22.0",
+    "pg": "^8.11.3",
     "socket.io": "^4.8.3"
   }
 }

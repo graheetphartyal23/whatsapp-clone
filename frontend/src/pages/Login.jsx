@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
-const API = import.meta.env.VITE_API_URL || '';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export default function Login() {
   const [isRegister, setIsRegister] = useState(false);

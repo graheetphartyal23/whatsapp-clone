@@ -4,7 +4,10 @@
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   background: var(--panel-header);
-  border-top: 1px solid var(--border-light);
+  backdrop-filter: blur(var(--blur-medium));
+  -webkit-backdrop-filter: blur(var(--blur-medium));
+  border-top: 1px solid var(--glass-border);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .message-input-file-hidden {
@@ -15,16 +18,19 @@
   width: 42px;
   height: 42px;
   flex-shrink: 0;
-  border: none;
+  border: 1px solid var(--glass-border);
   border-radius: 50%;
-  background: transparent;
+  background: var(--input-bg);
+  backdrop-filter: blur(var(--blur-soft));
   color: var(--text-secondary);
   font-size: 1.25rem;
   cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .message-input-attach:hover:not(:disabled) {
   background: var(--chat-hover);
+  border-color: var(--glass-border-hover);
   color: var(--text-primary);
 }
 
@@ -38,35 +44,49 @@
   min-height: 42px;
   max-height: 120px;
   padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
   background: var(--input-bg);
+  backdrop-filter: blur(var(--blur-soft));
   color: var(--text-primary);
   font-size: 1rem;
   resize: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.message-input-field:hover {
+  border-color: var(--glass-border-hover);
+}
+
+.message-input-field:focus {
+  outline: none;
+  border-color: var(--green-accent);
+  background: rgba(42, 57, 66, 0.5);
 }
 
 .message-input-field::placeholder {
   color: var(--text-secondary);
 }
 
-.message-input-field:focus {
-  outline: none;
-}
-
 .message-input-send {
   padding: 0.6rem 1.25rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--green-accent);
   color: #fff;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: var(--shadow-soft);
 }
 
 .message-input-send:hover:not(:disabled) {
   background: #008f72;
+}
+
+.message-input-send:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .message-input-send:disabled {

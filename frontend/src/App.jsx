@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import Login from './pages/Login';
 import Chat from './pages/Chat';
+import { CallProvider } from './context/CallContext';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -20,7 +21,9 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <SocketProvider>
-              <Chat />
+              <CallProvider>
+                <Chat />
+              </CallProvider>
             </SocketProvider>
           </PrivateRoute>
         }

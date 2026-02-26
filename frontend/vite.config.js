@@ -6,19 +6,6 @@ export default defineConfig({
   server: {
     port: 3080,
     strictPort: false,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:4000',
-        changeOrigin: true,
-      },
-      '/uploads': {
-        target: 'http://localhost:4000',
-        changeOrigin: true,
-      },
-      '/socket.io': {
-        target: 'http://localhost:4000',
-        ws: true,
-      },
-    },
+    // No proxy: frontend talks directly to backend via VITE_API_URL (e.g. http://localhost:8000)
   },
 });

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useSocket } from '../context/SocketContext';
 import './MessageInput.css';
 
-const API = import.meta.env.VITE_API_URL || '';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function getAuthHeader() {
   const token = localStorage.getItem('token');

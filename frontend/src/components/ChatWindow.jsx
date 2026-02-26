@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSocket } from '../context/SocketContext';
+import { useCall } from '../context/CallContext'; 
 import './ChatWindow.css';
 
 function formatMessageTime(date) {
@@ -17,7 +18,10 @@ function statusIcon(status) {
 }
 
 export default function ChatWindow({
+  chatType = 'direct',
   otherUser,
+  chatName,
+  members,
   messages,
   loading,
   currentUserId,
@@ -29,6 +33,8 @@ export default function ChatWindow({
 }) {
   const bottomRef = useRef(null);
   const socket = useSocket();
+  const { startCall } = useCall();
+  
 
   useEffect(() => {
     if (!socket) return;
@@ -64,18 +70,52 @@ export default function ChatWindow({
       <header className="chat-window-header">
         <div className="chat-window-avatar">
           <span>
-            {otherUser?.name?.charAt(0)?.toUpperCase() ||
-              otherUser?.email?.charAt(0)?.toUpperCase() ||
-              '?'}
+            {chatType === 'group'
+              ? (chatName || 'Group').charAt(0).toUpperCase()
+              : otherUser?.name?.charAt(0)?.toUpperCase() ||
+                otherUser?.email?.charAt(0)?.toUpperCase() ||
+                '?'}
           </span>
-          {otherUser?.isOnline && <span className="chat-online-dot" />}
+          {chatType === 'direct' && otherUser?.isOnline && (
+            <span className="chat-online-dot" />
+          )}
         </div>
         <div className="chat-window-info">
-          <span className="chat-window-name">{otherUser?.name || otherUser?.email}</span>
+          <span className="chat-window-name">
+            {chatType === 'group'
+              ? chatName || 'Group'
+              : otherUser?.name || otherUser?.email}
+          </span>
           <span className="chat-window-status">
-            {otherUser?.isOnline ? 'Online' : 'Offline'}
+            {chatType === 'group'
+              ? `${members?.length || 0} members`
+              : otherUser?.isOnline
+              ? 'Online'
+              : 'Offline'}
           </span>
         </div>
+        {chatType === 'direct' && otherUser && (
+          <div className="chat-window-actions">
+            <button
+              type="button"
+              className="call-btn voice-call-btn"
+              onClick={() => startCall(otherUser.id, 'audio')}
+              aria-label="Start voice call"
+              title="Voice call"
+            >
+              📞
+            </button>
+            <button
+              type="button"
+              className="call-btn video-call-btn"
+              onClick={() => startCall(otherUser.id, 'video')}
+              aria-label="Start video call"
+              title="Video call"
+            >
+              📸
+            </button>
+          </div>
+        )}
       </header>
       <div className="chat-window-messages">
         {nextCursor && (
@@ -93,22 +133,30 @@ export default function ChatWindow({
         {loading ? (
           <p className="messages-loading">Loading messages...</p>
         ) : (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`message-bubble ${isOwn(msg) ? 'out' : 'in'}`}
-            >
-              <span className="message-text">{msg.content}</span>
-              <span className="message-meta">
-                {formatMessageTime(msg.createdAt)}
-                {isOwn(msg) && (
-                  <span className="message-status" title={msg.status}>
-                    {statusIcon(msg.status)}
+          messages.map((msg) => {
+            const senderName = chatType === 'group' && !isOwn(msg) 
+              ? (msg.sender?.name || msg.sender?.email || 'Unknown')
+              : null;
+            return (
+              <div key={msg.id}
+                className={`message-bubble ${isOwn(msg) ? 'out' : 'in'}`}>
+                {senderName && (
+                  <span className="message-sender-name" style={{ fontSize: '12px', color: '#666', marginBottom: '4px', display: 'block' }}>
+                    {senderName}
                   </span>
                 )}
-              </span>
-            </div>
-          ))
+                <span className="message-text">{msg.content}</span>
+                <span className="message-meta">
+                  {formatMessageTime(msg.createdAt)}
+                  {isOwn(msg) && (
+                    <span className="message-status" title={msg.status}>
+                      {statusIcon(msg.status)}
+                    </span>
+                  )}
+                </span>
+              </div>
+            );
+          })
         )}
         <div ref={bottomRef} />
       </div>

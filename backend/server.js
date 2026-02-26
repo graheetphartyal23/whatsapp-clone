@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { db } from './lib/db.js';
 // global error handlers to make backend errors visible in console
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err && err.stack ? err.stack : err);
@@ -57,9 +58,15 @@ app.use((err, req, res, next) => {
 
 setupSocketHandlers(io);
 
-const PORT = process.env.PORT || 4000;
-httpServer.listen(PORT, () => {
+const PORT = process.env.PORT || 8000;
+httpServer.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  try {
+    await db.query('SELECT NOW()');
+    console.log('Database connected successfully');
+  } catch (error) {
+    console.error('Database connection error:', error.message);
+  }
 }).on('error', (err) => {
   console.error('Server failed to start:', err.message);
   if (err.code === 'EADDRINUSE') {
