@@ -13,7 +13,7 @@ const getUserIdFromToken = (token) => {
   }
 };
 
-export function setupSocketHandlers(io) {
+export function setupSocketHandlers(io) { //hello
   io.use(async (socket, next) => {
     const token = socket.handshake.auth?.token;
     const userId = getUserIdFromToken(token);
