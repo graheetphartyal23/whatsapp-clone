@@ -65,12 +65,20 @@ So: set **`FRONTEND_URL`** on Render to your Vercel URL (e.g. `https://whatsapp-
    |-----|--------|
    | `DATABASE_URL` | Your Postgres connection string from step 2 |
    | `JWT_SECRET` | A long random string (e.g. `openssl rand -hex 32`) |
-   | `FRONTEND_URL` | `https://whatsapp-clone-pi-ecru.vercel.app` (your Vercel URL; no trailing slash) |
+   | `FRONTEND_URL` | Your Vercel URL(s), no trailing slash. For multiple (e.g. production + preview) use comma-separated: `https://whatsapp-clone-ashy-seven.vercel.app,https://whatsapp-clone-pi-ecru.vercel.app` |
 
    - **Save**. Render will redeploy. If you don’t have the Vercel URL yet, you can add `FRONTEND_URL` after Part 2 and redeploy again.
 
 5. **Note the backend URL**
    - After deploy, open the service; the URL is shown at the top (e.g. `https://whatsapp-clone-znde.onrender.com`). Use this for `VITE_API_URL` in Part 2.
+
+6. **Create database tables (required for register/login to work)**
+   - If you get **500 on register or login**, the `users` table (and related tables) may not exist yet.
+   - In Render: open your **PostgreSQL** instance → **Connect** → use the **External** (or Internal) connection string.
+   - Run the schema in your database. From your repo, run the SQL in `backend/database-schema.sql` (e.g. with `psql`, or a GUI like pgAdmin/TablePlus):
+     - Connect to the same DB as `DATABASE_URL`.
+     - Execute the full contents of `backend/database-schema.sql` (creates `users`, `chats`, `chat_members`, `messages`).
+   - After that, register and login should return 201/200 instead of 500.
 
 ---
 
