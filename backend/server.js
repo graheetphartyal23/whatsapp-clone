@@ -16,6 +16,7 @@ import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import { setupSocketHandlers } from './socket/socketHandlers.js';
+import { initDb } from './scripts/initDb.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -65,19 +66,61 @@ app.use((err, req, res, next) => {
 
 setupSocketHandlers(io);
 
-const PORT = process.env.PORT || 8000;
-httpServer.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
+const PORT = parseInt(process.env.PORT, 10) || 8000;
+const PORT_EXPLICIT = process.env.PORT != null && process.env.PORT !== '';
+const FALLBACK_PORTS = [8001, 8002, 8003, 8004, 8005, 8006, 8007];
+
+function tryListen(port) {
+  return new Promise((resolve, reject) => {
+    const server = httpServer.listen(port, () => resolve(port));
+    server.on('error', reject);
+  });
+}
+
+async function startServer() {
+  let usedPort = PORT;
+  if (PORT_EXPLICIT) {
+    // Render / production: use only PORT from env, no fallback
+    try {
+      await tryListen(PORT);
+    } catch (err) {
+      console.error('Server failed to start:', err.message);
+      process.exit(1);
+    }
+  } else {
+    try {
+      usedPort = await tryListen(PORT);
+    } catch (err) {
+      if (err.code !== 'EADDRINUSE') {
+        console.error('Server failed to start:', err.message);
+        process.exit(1);
+      }
+      for (const p of FALLBACK_PORTS) {
+        try {
+          usedPort = await tryListen(p);
+          console.warn(`Port ${PORT} in use; using ${usedPort}. In frontend/.env set VITE_API_URL=http://localhost:${usedPort}`);
+          break;
+        } catch (e) {
+          if (e.code !== 'EADDRINUSE') throw e;
+        }
+      }
+      if (usedPort === PORT) {
+        console.error(`Ports ${PORT}, ${FALLBACK_PORTS.join(', ')} in use. Free a port or set PORT in .env`);
+        process.exit(1);
+      }
+    }
+  }
+  console.log(`Server running on port ${usedPort}`);
   try {
     await db.query('SELECT NOW()');
     console.log('Database connected successfully');
+    await initDb(db);
   } catch (error) {
     console.error('Database connection error:', error.message);
   }
-}).on('error', (err) => {
-  console.error('Server failed to start:', err.message);
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Stop the other process or set PORT to a different number in .env`);
-  }
+}
+
+startServer().catch((err) => {
+  console.error(err);
   process.exit(1);
 });

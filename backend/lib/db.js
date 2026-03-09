@@ -1,11 +1,22 @@
 import pg from 'pg';
 const { Pool } = pg;
 
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error('DATABASE_URL environment variable is required. Set it in Render Environment or in backend/.env');
+  process.exit(1);
+}
+// Render (and most cloud) Postgres require SSL; localhost typically does not
+const useSSL =
+  connectionString &&
+  !connectionString.includes('localhost') &&
+  !connectionString.includes('127.0.0.1');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  connectionString,
+  ...(useSSL && {
+    ssl: { rejectUnauthorized: false },
+  }),
 });
 
 pool.on('error', (err) => {
