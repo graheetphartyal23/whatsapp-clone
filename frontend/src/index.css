@@ -1,3 +1,4 @@
+/* ===== Modern design system (Meta-style) ===== */
 *,
 *::before,
 *::after {
@@ -5,66 +6,154 @@
 }
 
 :root {
-  /* Premium transparent / glass theme - clearly visible */
-  --glass-bg: rgba(15, 25, 35, 0.55);
-  --glass-bg-light: rgba(28, 42, 55, 0.5);
-  --glass-panel: rgba(12, 22, 32, 0.7);
-  --glass-input: rgba(40, 58, 72, 0.5);
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Radius scale */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.25);
+
+  /* Theme colors */
+  --glass-bg: rgba(17, 27, 33, 0.95);
+  --glass-bg-light: rgba(32, 44, 51, 0.98);
+  --glass-panel: rgba(32, 44, 51, 0.98);
+  --glass-input: rgba(42, 57, 66, 0.6);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(255, 255, 255, 0.15);
-  --blur-strong: 24px;
-  --blur-medium: 16px;
-  --blur-soft: 10px;
+  --glass-border-hover: rgba(255, 255, 255, 0.14);
 
   --sidebar-bg: var(--glass-bg);
   --chat-list-bg: var(--glass-bg);
-  --chat-hover: rgba(50, 70, 88, 0.45);
-  --panel-header: var(--glass-bg-light);
-  --chat-window-bg: rgba(8, 18, 28, 0.35);
-  --message-out: rgba(0, 92, 75, 0.8);
-  --message-in: rgba(35, 50, 65, 0.7);
+  --chat-hover: rgba(44, 56, 65, 0.6);
+  --panel-header: var(--glass-panel);
+  --chat-window-bg: rgba(11, 20, 26, 0.94);
+  --message-out: rgba(0, 92, 75, 0.9);
+  --message-in: rgba(42, 57, 66, 0.85);
   --input-bg: var(--glass-input);
   --text-primary: #e9edef;
-  --text-secondary: #8a9ba8;
+  --text-secondary: #8696a0;
+  --text-tertiary: #667781;
   --green-accent: #00a884;
-  --green-accent-dim: rgba(0, 168, 132, 0.28);
+  --green-accent-hover: #06cf9c;
+  --green-accent-dim: rgba(0, 168, 132, 0.25);
   --border-light: var(--glass-border);
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.25);
+  --blur-strong: 20px;
+  --blur-medium: 12px;
+  --blur-soft: 8px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 220ms;
+  --duration-slow: 320ms;
+
+  /* Touch targets (min 44px for accessibility) */
+  --touch-min: 44px;
+}
+
+/* Responsive typography */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 15px;
+  }
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  /* Premium glass theme: teal-tinted dark gradient so transparent panels are obvious */
+  font-family: 'Segoe UI', 'Helvetica Neue', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   background:
-    radial-gradient(ellipse 140% 90% at 10% 10%, rgba(20, 55, 65, 0.95) 0%, transparent 45%),
-    radial-gradient(ellipse 100% 120% at 90% 90%, rgba(12, 40, 52, 0.9) 0%, transparent 45%),
-    linear-gradient(165deg, #0a1422 0%, #0d1a28 30%, #0c1622 60%, #080e18 100%);
+    radial-gradient(ellipse 120% 80% at 20% 20%, rgba(18, 45, 55, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 100% at 80% 80%, rgba(12, 35, 45, 0.35) 0%, transparent 50%),
+    linear-gradient(180deg, #0b1419 0%, #0d1920 25%, #0a1218 100%);
   background-attachment: fixed;
-  background-color: #0a1220;
+  background-color: #0b1419;
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.45;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 input,
 button,
 textarea {
   font-family: inherit;
+  font-size: inherit;
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--green-accent);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
 }
 
 a {
   color: var(--green-accent);
   text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 a:hover {
+  color: var(--green-accent-hover);
   text-decoration: underline;
+}
+
+/* Custom scrollbar (modern, subtle) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Prevent pull-to-refresh overscroll on mobile */
+body {
+  overscroll-behavior-y: none;
 }

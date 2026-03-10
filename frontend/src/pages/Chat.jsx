@@ -204,9 +204,9 @@ export default function Chat() {
   }, [selectedChat?.id, nextCursor, loadingMore]);
 
   return (
-    <div className="chat-layout">
+    <div className={`chat-layout ${selectedChat ? 'mobile-chat-open' : ''}`}>
       <IncomingCallModal users={users} />
-      <CallScreen users={users} />  {/* ← ADD THIS LINE */}
+      <CallScreen users={users} />
       <Sidebar
         user={user}
         chats={chats}
@@ -233,6 +233,7 @@ export default function Chat() {
               onLoadOlder={loadOlderMessages}
               onNewMessage={onNewMessage}
               onStatusUpdate={onStatusUpdate}
+              onBack={() => setSelectedChat(null)}
             />
             <MessageInput
               chatId={selectedChat.id}

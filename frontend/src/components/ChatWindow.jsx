@@ -30,6 +30,7 @@ export default function ChatWindow({
   onLoadOlder,
   onNewMessage,
   onStatusUpdate,
+  onBack,
 }) {
   const bottomRef = useRef(null);
   const socket = useSocket();
@@ -68,6 +69,16 @@ export default function ChatWindow({
   return (
     <div className="chat-window">
       <header className="chat-window-header">
+        {onBack && (
+          <button
+            type="button"
+            className="chat-window-back"
+            onClick={onBack}
+            aria-label="Back to chats"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+        )}
         <div className="chat-window-avatar">
           <span>
             {chatType === 'group'
@@ -141,9 +152,7 @@ export default function ChatWindow({
               <div key={msg.id}
                 className={`message-bubble ${isOwn(msg) ? 'out' : 'in'}`}>
                 {senderName && (
-                  <span className="message-sender-name" style={{ fontSize: '12px', color: '#666', marginBottom: '4px', display: 'block' }}>
-                    {senderName}
-                  </span>
+                  <span className="message-sender-name">{senderName}</span>
                 )}
                 <span className="message-text">{msg.content}</span>
                 <span className="message-meta">

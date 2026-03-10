@@ -251,20 +251,12 @@ export default function Sidebar({
                         autoFocus
                       />
                     </div>
-                    <div style={{ padding: '8px', borderBottom: '1px solid #e0e0e0' }}>
+                    <div className="sidebar-toolbar">
                       <button
                         type="button"
                         onClick={() => setShowNewGroup(true)}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          background: '#25D366',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontWeight: '500',
-                        }}
+                        className="new-group-button"
+                        style={{ width: '100%' }}
                       >
                         + New Group
                       </button>
@@ -318,7 +310,7 @@ export default function Sidebar({
                         autoFocus
                       />
                     </div>
-                    <div style={{ padding: '8px', borderBottom: '1px solid #e0e0e0', display: 'flex', gap: '8px' }}>
+                    <div className="sidebar-toolbar">
                       <button
                         type="button"
                         onClick={() => {
@@ -326,13 +318,7 @@ export default function Sidebar({
                           setGroupName('');
                           setSelectedMembers([]);
                         }}
-                        style={{
-                          padding: '8px 16px',
-                          background: '#f0f0f0',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                        }}
+                        className="sidebar-toolbar-button-secondary"
                       >
                         ← Back
                       </button>
@@ -344,21 +330,12 @@ export default function Sidebar({
                           createGroup();
                         }}
                         disabled={!groupName.trim() || selectedMembers.length < 1 || creatingGroup}
-                        style={{
-                          flex: 1,
-                          padding: '8px 16px',
-                          background: groupName.trim() && selectedMembers.length >= 1 && !creatingGroup ? '#25D366' : '#ccc',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: groupName.trim() && selectedMembers.length >= 1 && !creatingGroup ? 'pointer' : 'not-allowed',
-                          fontWeight: '500',
-                        }}
+                        className="sidebar-toolbar-button-primary"
                       >
                         {creatingGroup ? 'Creating...' : `Create (${selectedMembers.length + 1})`}
                       </button>
                     </div>
-                    <div style={{ padding: '8px', fontSize: '12px', color: '#666' }}>
+                    <div className="sidebar-toolbar-label">
                       Select members ({selectedMembers.length} selected)
                     </div>
                     <div className="user-list">
@@ -368,16 +345,13 @@ export default function Sidebar({
                           <button
                             type="button"
                             key={u.id}
-                            className="chat-list-item"
+                            className={`chat-list-item ${isSelected ? 'selected-member-item' : ''}`}
                             onClick={() => toggleMemberSelection(u.id)}
-                            style={{
-                              background: isSelected ? '#e8f5e9' : 'transparent',
-                            }}
                           >
                             <div className="chat-list-avatar">
                               <span>{u.name?.charAt(0)?.toUpperCase() || u.email?.charAt(0)?.toUpperCase() || '?'}</span>
                               {isSelected && (
-                                <span style={{ marginLeft: '8px', color: '#25D366', fontWeight: 'bold' }}>✓</span>
+                                <span className="member-check">✓</span>
                               )}
                             </div>
                             <div className="chat-list-info">

@@ -1,7 +1,8 @@
 .incoming-call-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -15,11 +16,13 @@
   backdrop-filter: blur(var(--blur-strong));
   -webkit-backdrop-filter: blur(var(--blur-strong));
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 2rem;
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
   text-align: center;
-  min-width: 300px;
-  box-shadow: var(--shadow-glass);
+  width: 100%;
+  max-width: 340px;
+  margin: var(--space-4);
+  box-shadow: var(--shadow-xl);
 }
 
 .incoming-call-avatar {
@@ -55,15 +58,17 @@
 
 .incoming-call-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-4);
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .incoming-call-reject,
 .incoming-call-accept {
-  padding: 0.85rem 1.75rem;
+  padding: var(--space-4) var(--space-6);
+  min-height: var(--touch-min);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
