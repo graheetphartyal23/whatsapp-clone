@@ -3,9 +3,11 @@ import { useCall } from '../context/CallContext';
 import './CallScreen.css';
 
 export default function CallScreen({ users = [] }) {
-  const { activeCall, localStreamRef, remoteStreamRef, endCall } = useCall();
+  const { activeCall, outgoingRinging, localStreamRef, remoteStreamRef, endCall } = useCall();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+
+  const callState = activeCall || outgoingRinging;
 
   // Sync stream refs to video elements (refs update asynchronously)
   useEffect(() => {
@@ -21,19 +23,25 @@ export default function CallScreen({ users = [] }) {
     return () => clearInterval(interval);
   }, [activeCall, localStreamRef, remoteStreamRef]);
 
-  if (!activeCall) return null;
+  if (!callState) return null;
 
-  const { peerUserId, callType } = activeCall;
+  const { peerUserId, callType } = callState;
   const peer = users.find((u) => u.id === peerUserId);
   const peerName = peer ? (peer.name || peer.email || 'Unknown') : 'Peer';
   const isVideo = callType === 'video';
+  const isActive = !!activeCall;
+  const statusText = isActive
+    ? (isVideo ? 'In video call' : 'In voice call')
+    : peer?.isOnline
+    ? 'Ringing…'
+    : 'Calling…';
 
   return (
     <div className="call-screen-overlay" role="dialog" aria-label="Active call">
       <div className="call-screen">
         <div className="call-screen-videos">
           <div className="call-remote-video">
-            {isVideo ? (
+            {isVideo && isActive ? (
               <video
                 ref={remoteVideoRef}
                 autoPlay
@@ -42,13 +50,19 @@ export default function CallScreen({ users = [] }) {
               />
             ) : (
               <div className="call-voice-placeholder">
-                <span className="call-voice-icon">🎤</span>
+                <span className="call-voice-icon">{isVideo ? '📹' : '📞'}</span>
                 <span>{peerName}</span>
-                <span className="call-voice-label">Voice call</span>
+                <span className="call-voice-label">
+                  {isActive
+                    ? isVideo
+                      ? 'Video call'
+                      : 'Voice call'
+                    : statusText}
+                </span>
               </div>
             )}
           </div>
-          {isVideo && (
+          {isVideo && isActive && (
             <div className="call-local-video">
               <video
                 ref={localVideoRef}
@@ -62,7 +76,7 @@ export default function CallScreen({ users = [] }) {
         </div>
         <div className="call-screen-info">
           <span className="call-screen-peer">{peerName}</span>
-          <span className="call-screen-type">{isVideo ? 'Video call' : 'Voice call'}</span>
+          <span className="call-screen-type">{statusText}</span>
         </div>
         <div className="call-screen-controls">
           <button

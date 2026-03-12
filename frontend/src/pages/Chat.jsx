@@ -247,9 +247,22 @@ export default function Chat() {
         )}
         {!selectedChat && (
           <nav className="bottom-nav" aria-label="Main navigation">
-            <button type="button" className="bottom-nav-item bottom-nav-item--active">Chats</button>
-            <button type="button" className="bottom-nav-item">Calls</button>
-            <button type="button" className="bottom-nav-item">Profile</button>
+            <button type="button" className="bottom-nav-item bottom-nav-item--active">
+              <span className="bottom-nav-icon">💬</span>
+              <span className="bottom-nav-label">Chats</span>
+            </button>
+            <button type="button" className="bottom-nav-item">
+              <span className="bottom-nav-icon">📰</span>
+              <span className="bottom-nav-label">Updates</span>
+            </button>
+            <button type="button" className="bottom-nav-item">
+              <span className="bottom-nav-icon">👥</span>
+              <span className="bottom-nav-label">Communities</span>
+            </button>
+            <button type="button" className="bottom-nav-item">
+              <span className="bottom-nav-icon">📞</span>
+              <span className="bottom-nav-label">Calls</span>
+            </button>
           </nav>
         )}
       </div>
