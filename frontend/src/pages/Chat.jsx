@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import { useCall } from '../context/CallContext';
 import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import MessageInput from '../components/MessageInput';
 import './Chat.css';
 import IncomingCallModal from '../components/IncomingCallModal';
 import CallScreen from '../components/CallScreen';  // ← ADD THIS LINE
+import CallsPage from '../components/CallsPage';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -56,6 +58,7 @@ function setChatOtherOnline(chats, userId, isOnline) {
 export default function Chat() {
   const { user, logout } = useAuth();
   const socket = useSocket();
+  const { callHistory } = useCall();
   const [chats, setChats] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -64,6 +67,7 @@ export default function Chat() {
   const [loadingChats, setLoadingChats] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [activeSection, setActiveSection] = useState('chats'); // chats | calls
 
   const fetchChats = useCallback(() => {
     setLoadingChats(true);
@@ -240,6 +244,8 @@ export default function Chat() {
               onMessageSent={onNewMessage}
             />
           </>
+        ) : activeSection === 'calls' ? (
+          <CallsPage calls={callHistory} users={users} currentUserId={user?.id} />
         ) : (
           <div className="chat-placeholder">
             <p>Select a chat or start a new conversation</p>
@@ -247,19 +253,27 @@ export default function Chat() {
         )}
         {!selectedChat && (
           <nav className="bottom-nav" aria-label="Main navigation">
-            <button type="button" className="bottom-nav-item bottom-nav-item--active">
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeSection === 'chats' ? 'bottom-nav-item--active' : ''}`}
+              onClick={() => setActiveSection('chats')}
+            >
               <span className="bottom-nav-icon">💬</span>
               <span className="bottom-nav-label">Chats</span>
             </button>
-            <button type="button" className="bottom-nav-item">
+            <button type="button" className="bottom-nav-item" disabled>
               <span className="bottom-nav-icon">📰</span>
               <span className="bottom-nav-label">Updates</span>
             </button>
-            <button type="button" className="bottom-nav-item">
+            <button type="button" className="bottom-nav-item" disabled>
               <span className="bottom-nav-icon">👥</span>
               <span className="bottom-nav-label">Communities</span>
             </button>
-            <button type="button" className="bottom-nav-item">
+            <button
+              type="button"
+              className={`bottom-nav-item ${activeSection === 'calls' ? 'bottom-nav-item--active' : ''}`}
+              onClick={() => setActiveSection('calls')}
+            >
               <span className="bottom-nav-icon">📞</span>
               <span className="bottom-nav-label">Calls</span>
             </button>

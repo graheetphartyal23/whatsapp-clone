@@ -13,6 +13,7 @@ export function CallProvider({ children }) {
   const [incomingCall, setIncomingCall] = useState(null);
   const [activeCall, setActiveCall] = useState(null);
   const [outgoingRinging, setOutgoingRinging] = useState(null);
+  const [callHistory, setCallHistory] = useState([]);
 
   const webrtc = useWebRTC(currentUserId);
 
@@ -22,6 +23,20 @@ export function CallProvider({ children }) {
     setOutgoingRinging(null);
     webrtc.cleanup();
   }, [webrtc]);
+
+  const logCall = useCallback(
+    (entry) => {
+      setCallHistory((prev) => [
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          ...entry,
+          createdAt: entry.createdAt || new Date().toISOString(),
+        },
+        ...prev,
+      ]);
+    },
+    []
+  );
 
   const startCall = useCallback(
     async (peerUserId, callType = 'video') => {
@@ -70,11 +85,23 @@ export function CallProvider({ children }) {
   const endCall = useCallback(() => {
     if (activeCall) {
       webrtc.endCall(activeCall.peerUserId);
+      logCall({
+        peerUserId: activeCall.peerUserId,
+        callType: activeCall.callType,
+        direction: activeCall.isInitiator ? 'outgoing' : 'incoming',
+        status: 'ended',
+      });
     } else if (outgoingRinging) {
       socket?.emit('call_end', { toUserId: outgoingRinging.peerUserId });
+      logCall({
+        peerUserId: outgoingRinging.peerUserId,
+        callType: outgoingRinging.callType,
+        direction: 'outgoing',
+        status: 'cancelled',
+      });
     }
     clearCallState();
-  }, [activeCall, outgoingRinging, socket, webrtc, clearCallState]);
+  }, [activeCall, outgoingRinging, socket, webrtc, clearCallState, logCall]);
 
   useEffect(() => {
     if (!socket) return;
@@ -106,6 +133,14 @@ export function CallProvider({ children }) {
     };
 
     const onCallEnded = () => {
+      if (activeCall && !activeCall.isInitiator) {
+        logCall({
+          peerUserId: activeCall.peerUserId,
+          callType: activeCall.callType,
+          direction: 'incoming',
+          status: 'ended',
+        });
+      }
       clearCallState();
     };
 
@@ -133,6 +168,7 @@ export function CallProvider({ children }) {
     incomingCall,
     activeCall,
     outgoingRinging,
+    callHistory,
     localStreamRef: webrtc.localStreamRef,
     remoteStreamRef: webrtc.remoteStreamRef,
     startCall,

@@ -6,22 +6,33 @@ export default function CallScreen({ users = [] }) {
   const { activeCall, outgoingRinging, localStreamRef, remoteStreamRef, endCall } = useCall();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const remoteAudioRef = useRef(null);
 
   const callState = activeCall || outgoingRinging;
 
-  // Sync stream refs to video elements (refs update asynchronously)
+  // Attach local video stream once when active video call starts
   useEffect(() => {
     if (!activeCall) return;
-    const interval = setInterval(() => {
-      if (localStreamRef?.current && localVideoRef.current) {
-        localVideoRef.current.srcObject = localStreamRef.current;
-      }
-      if (remoteStreamRef?.current && remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = remoteStreamRef.current;
-      }
-    }, 200);
-    return () => clearInterval(interval);
-  }, [activeCall, localStreamRef, remoteStreamRef]);
+    if (localStreamRef?.current && localVideoRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+    }
+  }, [activeCall, localStreamRef]);
+
+  // Attach remote video stream once when available
+  useEffect(() => {
+    if (!activeCall) return;
+    if (remoteStreamRef?.current && remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = remoteStreamRef.current;
+    }
+  }, [activeCall, remoteStreamRef]);
+
+  // Always attach remote audio (for voice-only and video)
+  useEffect(() => {
+    if (!callState) return;
+    if (remoteStreamRef?.current && remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = remoteStreamRef.current;
+    }
+  }, [callState, remoteStreamRef]);
 
   if (!callState) return null;
 
@@ -73,6 +84,8 @@ export default function CallScreen({ users = [] }) {
               />
             </div>
           )}
+          {/* Hidden audio element to play remote audio for voice/video calls */}
+          <audio ref={remoteAudioRef} autoPlay playsInline className="call-remote-audio" />
         </div>
         <div className="call-screen-info">
           <span className="call-screen-peer">{peerName}</span>
