@@ -204,20 +204,10 @@ export default function Chat() {
   }, [selectedChat?.id, nextCursor, loadingMore]);
 
   return (
-    <div className="chat-app">
-      <header className="app-bar">
-        <div className="app-bar-brand">
-          <span className="app-bar-logo" aria-hidden>W</span>
-          <span className="app-bar-title">WhatsApp Clone</span>
-        </div>
-        <div className="app-bar-actions">
-          <span className="app-bar-user">{user?.name || user?.email}</span>
-        </div>
-      </header>
-      <div className={`chat-layout ${selectedChat ? 'mobile-chat-open' : ''}`}>
-        <IncomingCallModal users={users} />
-        <CallScreen users={users} />
-        <Sidebar
+    <div className={`chat-layout ${selectedChat ? 'mobile-chat-open' : ''}`}>
+      <IncomingCallModal users={users} />
+      <CallScreen users={users} />
+      <Sidebar
         user={user}
         chats={chats}
         users={users}
@@ -255,12 +245,13 @@ export default function Chat() {
             <p>Select a chat or start a new conversation</p>
           </div>
         )}
-        <nav className="bottom-nav" aria-label="Main navigation">
-          <button type="button" className="bottom-nav-item bottom-nav-item--active">Chats</button>
-          <button type="button" className="bottom-nav-item">Calls</button>
-          <button type="button" className="bottom-nav-item">Profile</button>
-        </nav>
-      </div>
+        {!selectedChat && (
+          <nav className="bottom-nav" aria-label="Main navigation">
+            <button type="button" className="bottom-nav-item bottom-nav-item--active">Chats</button>
+            <button type="button" className="bottom-nav-item">Calls</button>
+            <button type="button" className="bottom-nav-item">Profile</button>
+          </nav>
+        )}
       </div>
     </div>
   );
