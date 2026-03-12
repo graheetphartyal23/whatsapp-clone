@@ -16,7 +16,7 @@
   backdrop-filter: blur(var(--blur-strong));
   -webkit-backdrop-filter: blur(var(--blur-strong));
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-card);
   padding: var(--space-8);
   text-align: center;
   width: 100%;

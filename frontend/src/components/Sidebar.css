@@ -9,6 +9,7 @@
   backdrop-filter: blur(var(--blur-strong));
   -webkit-backdrop-filter: blur(var(--blur-strong));
   border-right: 1px solid var(--glass-border);
+  border-radius: 0 var(--radius-card) var(--radius-card) 0;
   box-shadow: var(--shadow-md);
   min-height: 0;
 }

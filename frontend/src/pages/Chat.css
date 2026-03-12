@@ -1,12 +1,94 @@
-/* ===== Chat layout – responsive (Meta-style) ===== */
-.chat-layout {
+/* ===== Chat app wrapper + top app bar ===== */
+.chat-app {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   height: 100dvh;
   width: 100vw;
   width: 100dvw;
   overflow: hidden;
+  background: var(--chat-window-bg);
+}
+
+.app-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: 56px;
+  min-height: 56px;
+  padding: 0 var(--space-5);
+  padding-left: max(var(--space-5), env(safe-area-inset-left, 0));
+  padding-right: max(var(--space-5), env(safe-area-inset-right, 0));
+  padding-top: env(safe-area-inset-top, 0);
+  background: var(--panel-header);
+  border-bottom: 1px solid var(--glass-border);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.app-bar-logo {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--green-accent);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.app-bar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.app-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.app-bar-user {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .app-bar-title {
+    font-size: 1rem;
+  }
+
+  .app-bar-user {
+    display: none;
+  }
+}
+
+/* ===== Chat layout – responsive ===== */
+.chat-layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
   position: relative;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  box-shadow: var(--shadow-md);
 }
 
 .chat-main {
@@ -41,22 +123,24 @@
   max-width: 280px;
 }
 
-/* ----- Mobile: single-panel behavior ----- */
+/* ----- Mobile: single-panel behavior (below app bar) ----- */
 @media (max-width: 768px) {
   .chat-layout .sidebar {
     position: fixed;
-    inset: 0;
     left: 0;
-    top: 0;
+    right: 0;
+    top: calc(56px + env(safe-area-inset-top, 0px));
     bottom: 0;
     width: 100%;
     max-width: 100%;
     min-width: 0;
+    height: calc(100dvh - 56px - env(safe-area-inset-top, 0px));
     z-index: 20;
     transform: translateX(0);
     transition: transform var(--duration-normal) var(--ease-out),
       visibility var(--duration-normal);
     box-shadow: var(--shadow-xl);
+    border-radius: var(--radius-card) 0 0 0;
   }
 
   .chat-layout.mobile-chat-open .sidebar {
@@ -67,11 +151,16 @@
 
   .chat-main {
     position: fixed;
-    inset: 0;
+    left: 0;
+    right: 0;
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    bottom: 0;
+    height: calc(100dvh - 56px - env(safe-area-inset-top, 0px));
     z-index: 10;
     opacity: 0;
     pointer-events: none;
     transform: translateX(20px);
+    border-radius: var(--radius-card) 0 0 0;
   }
 
   .chat-layout.mobile-chat-open .chat-main {
@@ -85,5 +174,57 @@
 @media (min-width: 769px) {
   .chat-layout .sidebar {
     flex-shrink: 0;
+  }
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom, 0) + 8px);
+  transform: translateX(-50%);
+  display: none;
+  align-items: center;
+  justify-content: space-around;
+  width: min(420px, 100% - 32px);
+  padding: 8px 10px;
+  background: rgba(17, 27, 33, 0.98);
+  border-radius: 9999px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--glass-border);
+  z-index: 30;
+}
+
+.bottom-nav-item {
+  flex: 1;
+  min-height: 40px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              transform 0.1s;
+}
+
+.bottom-nav-item--active {
+  background: var(--green-accent);
+  color: #fff;
+}
+
+.bottom-nav-item:hover {
+  background: var(--chat-hover);
+}
+
+.bottom-nav-item--active:hover {
+  background: var(--green-accent-hover);
+}
+
+@media (max-width: 768px) {
+  .bottom-nav {
+    display: flex;
   }
 }
