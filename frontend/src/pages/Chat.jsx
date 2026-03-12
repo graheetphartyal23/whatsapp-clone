@@ -251,34 +251,32 @@ export default function Chat() {
             <p>Select a chat or start a new conversation</p>
           </div>
         )}
-        {!selectedChat && (
-          <nav className="bottom-nav" aria-label="Main navigation">
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeSection === 'chats' ? 'bottom-nav-item--active' : ''}`}
-              onClick={() => setActiveSection('chats')}
-            >
-              <span className="bottom-nav-icon">💬</span>
-              <span className="bottom-nav-label">Chats</span>
-            </button>
-            <button type="button" className="bottom-nav-item" disabled>
-              <span className="bottom-nav-icon">📰</span>
-              <span className="bottom-nav-label">Updates</span>
-            </button>
-            <button type="button" className="bottom-nav-item" disabled>
-              <span className="bottom-nav-icon">👥</span>
-              <span className="bottom-nav-label">Communities</span>
-            </button>
-            <button
-              type="button"
-              className={`bottom-nav-item ${activeSection === 'calls' ? 'bottom-nav-item--active' : ''}`}
-              onClick={() => setActiveSection('calls')}
-            >
-              <span className="bottom-nav-icon">📞</span>
-              <span className="bottom-nav-label">Calls</span>
-            </button>
-          </nav>
-        )}
+        <nav className="bottom-nav" aria-label="Main navigation">
+          <button
+            type="button"
+            className={`bottom-nav-item ${activeSection === 'chats' ? 'bottom-nav-item--active' : ''}`}
+            onClick={() => setActiveSection('chats')}
+          >
+            <span className="bottom-nav-icon">💬</span>
+            <span className="bottom-nav-label">Chats</span>
+          </button>
+          <button type="button" className="bottom-nav-item" disabled>
+            <span className="bottom-nav-icon">📰</span>
+            <span className="bottom-nav-label">Updates</span>
+          </button>
+          <button type="button" className="bottom-nav-item" disabled>
+            <span className="bottom-nav-icon">👥</span>
+            <span className="bottom-nav-label">Communities</span>
+          </button>
+          <button
+            type="button"
+            className={`bottom-nav-item ${activeSection === 'calls' ? 'bottom-nav-item--active' : ''}`}
+            onClick={() => setActiveSection('calls')}
+          >
+            <span className="bottom-nav-icon">📞</span>
+            <span className="bottom-nav-label">Calls</span>
+          </button>
+        </nav>
       </div>
     </div>
   );

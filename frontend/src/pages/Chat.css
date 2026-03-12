@@ -99,7 +99,7 @@
   left: 50%;
   bottom: max(12px, env(safe-area-inset-bottom, 0) + 8px);
   transform: translateX(-50%);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: space-around;
   width: min(420px, 100% - 32px);
@@ -156,7 +156,7 @@
 }
 
 @media (max-width: 768px) {
-  .bottom-nav {
-    display: flex;
+  .chat-layout.mobile-chat-open .bottom-nav {
+    display: none;
   }
 }
