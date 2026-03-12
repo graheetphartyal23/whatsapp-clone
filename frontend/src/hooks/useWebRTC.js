@@ -75,19 +75,19 @@ export function useWebRTC(currentUserId) {
       const pc = pcRef.current;
 
       if (signal.type === 'offer') {
-        await pc.setRemoteDescription(new RTCSessionDescription(signal));
+        await pc.setRemoteDescription(signal);
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         if (socket) {
           socket.emit('webrtc_signal', {
             toUserId: fromUserId,
-            signal: { type: 'answer', sdp: answer },
+            signal: answer,
           });
         }
         pendingCandidatesRef.current.forEach((c) => pc.addIceCandidate(c));
         pendingCandidatesRef.current = [];
       } else if (signal.type === 'answer') {
-        await pc.setRemoteDescription(new RTCSessionDescription(signal));
+        await pc.setRemoteDescription(signal);
         pendingCandidatesRef.current.forEach((c) => pc.addIceCandidate(c));
         pendingCandidatesRef.current = [];
       } else if (signal.type === 'candidate' && signal.candidate) {
@@ -120,7 +120,7 @@ export function useWebRTC(currentUserId) {
         await pc.setLocalDescription(offer);
         socket.emit('webrtc_signal', {
           toUserId: peerUserId,
-          signal: { type: 'offer', sdp: offer },
+          signal: offer,
         });
         return stream;
       } catch (err) {
