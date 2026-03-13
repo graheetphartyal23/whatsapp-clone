@@ -20,6 +20,8 @@
   -webkit-backdrop-filter: blur(var(--blur-medium));
   transition: opacity var(--duration-normal) var(--ease-out),
     transform var(--duration-normal) var(--ease-out);
+  /* Reserve space so the floating bottom-nav never overlaps the input */
+  padding-bottom: 72px;
 }
 
 .chat-placeholder {
