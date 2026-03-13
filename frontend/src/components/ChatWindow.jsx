@@ -123,7 +123,7 @@ export default function ChatWindow({
               aria-label="Start video call"
               title="Video call"
             >
-              📸
+              🎥
             </button>
           </div>
         )}
