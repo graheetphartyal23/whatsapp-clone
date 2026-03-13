@@ -1,53 +1,23 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import './UpdatesPage.css';
-import { useAuth } from '../context/AuthContext';
+import './UpdatesPage.css';
+import { useMemo } from 'react';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-function formatTime(value) {
-  if (!value) return '';
-  const d = new Date(value);
-  return d.toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+// Edit this string to change the global announcement
+const GLOBAL_ANNOUNCEMENT_MESSAGE = `📢 Announcement
+Voice Call 📞 and Video Call 🎥 are now available!
+Enjoy smooth, high-quality calls designed to work seamlessly without lag.
+Start a call from any chat and stay connected.`;
 
 export default function UpdatesPage() {
-  const { user } = useAuth();
-  const [announcements, setAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError('');
-    axios
-      .get(`${API}/api/announcements`, {
-        headers: user?.token ? { Authorization: `Bearer ${user.token}` } : {},
-      })
-      .then((res) => {
-        if (!cancelled) {
-          setAnnouncements(res.data || []);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err?.response?.data?.message || 'Failed to load announcements.');
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
+  const announcement = useMemo(() => {
+    const message = GLOBAL_ANNOUNCEMENT_MESSAGE?.trim();
+    if (!message) return null;
+    return {
+      id: 'static-announcement', 
+      message,
+      createdAt: new Date().toISOString(),
     };
-  }, [user?.token]);
+  }, []);
 
   return (
     <div className="updates-page">
@@ -57,24 +27,22 @@ export default function UpdatesPage() {
       </header>
 
       <section className="updates-list">
-        {loading && <div className="updates-placeholder">Loading announcements…</div>}
-        {error && !loading && <div className="updates-error">{error}</div>}
-        {!loading && !error && announcements.length === 0 && (
-          <div className="updates-placeholder">No announcements yet.</div>
+        {!announcement && (
+          <div className="updates-placeholder">
+            No announcement configured. Set GLOBAL_ANNOUNCEMENT_MESSAGE in UpdatesPage.jsx.
+          </div>
         )}
-        {!loading &&
-          !error &&
-          announcements.map((a) => (
-            <article key={a.id} className="announcement-card">
-              <div className="announcement-icon">📢</div>
-              <div className="announcement-content">
-                <p className="announcement-message">{a.message}</p>
-                <time className="announcement-time" dateTime={a.createdAt}>
-                  {formatTime(a.createdAt)}
-                </time>
-              </div>
-            </article>
-          ))}
+        {announcement && (
+          <article key={announcement.id} className="announcement-card">
+            <div className="announcement-icon">📢</div>
+            <div className="announcement-content">
+              <p className="announcement-message">{announcement.message}</p>
+              <time className="announcement-time" dateTime={announcement.createdAt}>
+                {new Date(announcement.createdAt).toLocaleString()}
+              </time>
+            </div>
+          </article>
+        )}
       </section>
     </div>
   );
