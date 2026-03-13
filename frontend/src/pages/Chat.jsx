@@ -208,11 +208,11 @@ export default function Chat() {
       .finally(() => setLoadingMore(false));
   }, [selectedChat?.id, nextCursor, loadingMore]);
 
-  const isMobileCallsView = !selectedChat && activeSection === 'calls';
+  const isMobileSectionView = !selectedChat && activeSection !== 'chats';
 
   return (
     <div
-      className={`chat-layout ${selectedChat ? 'mobile-chat-open' : ''} ${isMobileCallsView ? 'mobile-calls-view' : ''}`}
+      className={`chat-layout ${selectedChat ? 'mobile-chat-open' : ''} ${isMobileSectionView ? 'mobile-section-view' : ''}`}
     >
       <IncomingCallModal users={users} />
       <CallScreen users={users} />

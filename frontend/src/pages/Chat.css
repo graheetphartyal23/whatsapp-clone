@@ -81,14 +81,14 @@
   }
 
   .chat-layout.mobile-chat-open .chat-main,
-  .chat-layout.mobile-calls-view .chat-main {
+  .chat-layout.mobile-section-view .chat-main {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(0);
     z-index: 15;
   }
 
-  .chat-layout.mobile-calls-view .sidebar {
+  .chat-layout.mobile-section-view .sidebar {
     transform: translateX(-100%);
     visibility: hidden;
     pointer-events: none;
