@@ -82,11 +82,18 @@
     transform: translateX(20px);
   }
 
-  .chat-layout.mobile-chat-open .chat-main {
+  .chat-layout.mobile-chat-open .chat-main,
+  .chat-layout.mobile-calls-view .chat-main {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(0);
     z-index: 15;
+  }
+
+  .chat-layout.mobile-calls-view .sidebar {
+    transform: translateX(-100%);
+    visibility: hidden;
+    pointer-events: none;
   }
 }
 
@@ -96,21 +103,35 @@
   }
 }
 
+/* Bottom navigation: fixed at bottom; full width on mobile, pill on desktop */
 .bottom-nav {
   position: fixed;
-  left: 50%;
-  bottom: max(12px, env(safe-area-inset-bottom, 0) + 8px);
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  width: min(420px, 100% - 32px);
   padding: 8px 10px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 0) + 8px);
   background: rgba(17, 27, 33, 0.98);
-  border-radius: 9999px;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--glass-border);
-  z-index: 30;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--glass-border);
+  z-index: 1000;
+}
+
+@media (min-width: 769px) {
+  .bottom-nav {
+    left: 50%;
+    right: auto;
+    width: min(420px, 100% - 32px);
+    bottom: max(12px, env(safe-area-inset-bottom, 0) + 8px);
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    border-top: none;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 .bottom-nav-item {
@@ -157,8 +178,4 @@
   background: var(--green-accent-hover);
 }
 
-@media (max-width: 768px) {
-  .chat-layout.mobile-chat-open .bottom-nav {
-    display: none;
-  }
-}
+/* Nav is not rendered when a chat is open (!selectedChat), so no extra hide rule needed */

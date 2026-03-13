@@ -207,8 +207,12 @@ export default function Chat() {
       .finally(() => setLoadingMore(false));
   }, [selectedChat?.id, nextCursor, loadingMore]);
 
+  const isMobileCallsView = !selectedChat && activeSection === 'calls';
+
   return (
-    <div className={`chat-layout ${selectedChat ? 'mobile-chat-open' : ''}`}>
+    <div
+      className={`chat-layout ${selectedChat ? 'mobile-chat-open' : ''} ${isMobileCallsView ? 'mobile-calls-view' : ''}`}
+    >
       <IncomingCallModal users={users} />
       <CallScreen users={users} />
       <Sidebar
@@ -251,6 +255,9 @@ export default function Chat() {
             <p>Select a chat or start a new conversation</p>
           </div>
         )}
+      </div>
+      {/* Bottom nav: only when no chat open — visible on list (sidebar/calls); fixed at bottom on mobile */}
+      {!selectedChat && (
         <nav className="bottom-nav" aria-label="Main navigation">
           <button
             type="button"
@@ -277,7 +284,7 @@ export default function Chat() {
             <span className="bottom-nav-label">Calls</span>
           </button>
         </nav>
-      </div>
+      )}
     </div>
   );
 }

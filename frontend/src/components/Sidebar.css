@@ -375,11 +375,12 @@
   font-size: 0.875rem;
 }
 
-/* Mobile: ensure touch targets and padding */
+/* Mobile: ensure touch targets and padding; reserve space for fixed bottom nav */
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
     min-width: 0;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
   }
 
   .sidebar-header {
