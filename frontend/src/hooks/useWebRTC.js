@@ -26,9 +26,10 @@ export function useWebRTC(currentUserId) {
   }, []);
 
   const getLocalStream = useCallback(async (isVideo) => {
+    // Always request audio; request camera only for video calls
     const constraints = {
       audio: true,
-      video: isVideo ? { facingMode: 'user' } : false,
+      video: isVideo ? true : false,
     };
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     localStreamRef.current = stream;
