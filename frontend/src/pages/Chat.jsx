@@ -10,6 +10,7 @@ import './Chat.css';
 import IncomingCallModal from '../components/IncomingCallModal';
 import CallScreen from '../components/CallScreen';  // ← ADD THIS LINE
 import CallsPage from '../components/CallsPage';
+import UpdatesPage from '../components/UpdatesPage';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -67,7 +68,7 @@ export default function Chat() {
   const [loadingChats, setLoadingChats] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [activeSection, setActiveSection] = useState('chats'); // chats | calls
+  const [activeSection, setActiveSection] = useState('chats'); // chats | calls | updates
 
   const fetchChats = useCallback(() => {
     setLoadingChats(true);
@@ -250,6 +251,8 @@ export default function Chat() {
           </>
         ) : activeSection === 'calls' ? (
           <CallsPage calls={callHistory} users={users} currentUserId={user?.id} />
+        ) : activeSection === 'updates' ? (
+          <UpdatesPage />
         ) : (
           <div className="chat-placeholder">
             <p>Select a chat or start a new conversation</p>
@@ -267,7 +270,11 @@ export default function Chat() {
             <span className="bottom-nav-icon">💬</span>
             <span className="bottom-nav-label">Chats</span>
           </button>
-          <button type="button" className="bottom-nav-item" disabled>
+          <button
+            type="button"
+            className={`bottom-nav-item ${activeSection === 'updates' ? 'bottom-nav-item--active' : ''}`}
+            onClick={() => setActiveSection('updates')}
+          >
             <span className="bottom-nav-icon">📰</span>
             <span className="bottom-nav-label">Updates</span>
           </button>

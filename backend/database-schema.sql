@@ -68,7 +68,18 @@ CREATE INDEX IF NOT EXISTS idx_messages_chat_created_at ON messages(chat_id, cre
 CREATE INDEX IF NOT EXISTS idx_messages_status ON messages(status);
 
 -- ============================================================
--- 5. BACKFILL EXISTING DIRECT CHATS INTO chat_members
+-- 5. ANNOUNCEMENTS TABLE (global updates)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS announcements (
+  id          TEXT PRIMARY KEY,
+  message     TEXT NOT NULL,
+  created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_announcements_created_at ON announcements(created_at DESC);
+
+-- ============================================================
+-- 6. BACKFILL EXISTING DIRECT CHATS INTO chat_members
 -- ============================================================
 -- If you already have direct chats, run this to populate chat_members
 INSERT INTO chat_members (chat_id, user_id)

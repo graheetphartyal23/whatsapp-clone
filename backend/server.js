@@ -15,6 +15,7 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import announcementRoutes from './routes/announcementRoutes.js';
 import { setupSocketHandlers } from './socket/socketHandlers.js';
 import { initDb } from './scripts/initDb.js';
 
@@ -52,6 +53,7 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       chats: '/api/chats',
       messages: '/api/messages',
+      announcements: '/api/announcements',
     },
   });
 });
@@ -59,6 +61,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ message: err.message || 'Server error.' });
