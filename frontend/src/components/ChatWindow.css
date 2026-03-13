@@ -22,7 +22,7 @@
 }
 
 .chat-window-back {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: var(--touch-min);
@@ -45,12 +45,6 @@
 
 .chat-window-back:active {
   transform: scale(0.95);
-}
-
-@media (max-width: 768px) {
-  .chat-window-back {
-    display: flex;
-  }
 }
 
 .chat-window-avatar {
