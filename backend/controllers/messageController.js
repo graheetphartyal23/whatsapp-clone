@@ -175,3 +175,63 @@ export const updateMessageStatus = async (req, res) => {
     res.status(500).json({ message: error.message || 'Failed to update status.' });
   }
 };
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { messageId } = req.params;
+    if (!messageId) {
+      return res.status(400).json({ message: 'messageId is required.' });
+    }
+
+    const result = await db.query(
+      `SELECT m.id,
+              m.chat_id as "chatId",
+              m.sender_id as "senderId",
+              c.type,
+              c.user1_id as "user1Id",
+              c.user2_id as "user2Id"
+       FROM messages m
+       JOIN chats c ON m.chat_id = c.id
+       WHERE m.id = $1`,
+      [messageId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Message not found.' });
+    }
+
+    const message = result.rows[0];
+    if (message.senderId !== userId) {
+      return res.status(403).json({ message: 'You can only delete your own messages.' });
+    }
+
+    await db.query('DELETE FROM messages WHERE id = $1', [messageId]);
+
+    if (req.io) {
+      const payload = { messageId, chatId: message.chatId };
+
+      if (message.type === 'group') {
+        const membersResult = await db.query(
+          'SELECT user_id FROM chat_members WHERE chat_id = $1',
+          [message.chatId]
+        );
+        for (const row of membersResult.rows) {
+          req.io.to(row.user_id).emit('message_deleted', payload);
+        }
+      } else {
+        const otherUserId =
+          message.user1Id === userId ? message.user2Id : message.user1Id;
+        if (otherUserId) {
+          req.io.to(otherUserId).emit('message_deleted', payload);
+        }
+      }
+
+      // Also notify the sender (current user) so all clients stay in sync
+      req.io.to(userId).emit('message_deleted', payload);
+    }
+
+    return res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Failed to delete message.' });
+  }
+};

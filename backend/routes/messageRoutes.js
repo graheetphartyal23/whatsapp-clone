@@ -3,6 +3,7 @@ import {
   getChatMessages,
   createMessage,
   updateMessageStatus,
+  deleteMessage,
 } from '../controllers/messageController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -11,5 +12,6 @@ router.use(protect);
 
 router.post('/', createMessage);
 router.patch('/:messageId/status', updateMessageStatus);
+router.delete('/:messageId', deleteMessage);
 
 export default router;

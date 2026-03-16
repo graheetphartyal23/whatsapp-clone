@@ -129,17 +129,33 @@ export default function Chat() {
     );
   }, []);
 
+  const onMessageDeleted = useCallback(({ messageId, chatId }) => {
+    if (!messageId) return;
+    setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    setChats((prev) =>
+      prev.map((c) => {
+        if (c.id !== (chatId || c.id)) return c;
+        if (c.lastMessage?.id !== messageId) return c;
+        return { ...c, lastMessage: null };
+      })
+    );
+  }, []);
+
   useEffect(() => {
     if (!socket) return;
     socket.on('receive_message', onNewMessage);
     socket.on('message_status_update', onStatusUpdate);
     socket.on('message_error', (err) => console.error('Socket error:', err));
+    const onDeleted = ({ messageId, chatId }) =>
+      onMessageDeleted({ messageId, chatId });
+    socket.on('message_deleted', onDeleted);
     return () => {
       socket.off('receive_message', onNewMessage);
       socket.off('message_status_update', onStatusUpdate);
       socket.off('message_error');
+      socket.off('message_deleted', onDeleted);
     };
-  }, [socket, onNewMessage, onStatusUpdate]);
+  }, [socket, onNewMessage, onStatusUpdate, onMessageDeleted]);
 
   useEffect(() => {
     if (!socket) return;
@@ -242,6 +258,7 @@ export default function Chat() {
               onLoadOlder={loadOlderMessages}
               onNewMessage={onNewMessage}
               onStatusUpdate={onStatusUpdate}
+              onMessageDeleted={onMessageDeleted}
               onBack={() => setSelectedChat(null)}
             />
             <MessageInput

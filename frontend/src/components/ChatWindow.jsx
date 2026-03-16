@@ -1,7 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 import { useSocket } from '../context/SocketContext';
 import { useCall } from '../context/CallContext'; 
 import './ChatWindow.css';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+function getAuthHeader() {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 function formatMessageTime(date) {
   return new Date(date).toLocaleTimeString([], {
@@ -31,10 +39,13 @@ export default function ChatWindow({
   onNewMessage,
   onStatusUpdate,
   onBack,
+  onMessageDeleted,
 }) {
   const bottomRef = useRef(null);
   const socket = useSocket();
   const { startCall } = useCall();
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const longPressTimerRef = useRef(null);
   
 
   useEffect(() => {
@@ -64,6 +75,52 @@ export default function ChatWindow({
   const isOwn = (msg) => {
     const sid = msg.sender?.id || msg.senderId;
     return sid === currentUserId;
+  };
+
+  const handleDeleteMessage = async (msg) => {
+    if (!isOwn(msg)) return;
+    const confirmed = window.confirm('Delete this message for everyone?');
+    if (!confirmed) return;
+    try {
+      await axios.delete(`${API}/api/messages/${msg.id}`, {
+        headers: getAuthHeader(),
+      });
+      setActiveMenuId(null);
+      if (onMessageDeleted) {
+        onMessageDeleted({ messageId: msg.id, chatId: msg.chatId });
+      }
+    } catch (err) {
+      console.error('Failed to delete message', err);
+      alert('Failed to delete message. Please try again.');
+    }
+  };
+
+  const attachMessageHandlers = (msg) => {
+    if (!isOwn(msg)) return {};
+    return {
+      onClick: () => setActiveMenuId((prev) => (prev === msg.id ? null : msg.id)),
+      onContextMenu: (e) => {
+        e.preventDefault();
+        setActiveMenuId(msg.id);
+      },
+      onTouchStart: () => {
+        longPressTimerRef.current = setTimeout(() => {
+          setActiveMenuId(msg.id);
+        }, 450);
+      },
+      onTouchEnd: () => {
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+      },
+      onTouchCancel: () => {
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+      },
+    };
   };
 
   return (
@@ -149,8 +206,11 @@ export default function ChatWindow({
               ? (msg.sender?.name || msg.sender?.email || 'Unknown')
               : null;
             return (
-              <div key={msg.id}
-                className={`message-bubble ${isOwn(msg) ? 'out' : 'in'}`}>
+              <div
+                key={msg.id}
+                className={`message-bubble ${isOwn(msg) ? 'out' : 'in'}`}
+                {...attachMessageHandlers(msg)}
+              >
                 {senderName && (
                   <span className="message-sender-name">{senderName}</span>
                 )}
@@ -163,6 +223,17 @@ export default function ChatWindow({
                     </span>
                   )}
                 </span>
+                {isOwn(msg) && activeMenuId === msg.id && (
+                  <div className="message-menu">
+                    <button
+                      type="button"
+                      className="message-menu-item message-menu-delete"
+                      onClick={() => handleDeleteMessage(msg)}
+                    >
+                      Delete message
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })
